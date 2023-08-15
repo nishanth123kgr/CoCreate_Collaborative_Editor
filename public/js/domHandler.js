@@ -9,6 +9,7 @@ let doc = Automerge.init()
 
 function updateDoc(newdoc) {
     doc = newdoc;
+    console.log(Automerge.getLastLocalChange(doc));
 }
 
 export function addHandler(node) {
@@ -25,7 +26,7 @@ export function addHandler(node) {
                 if (topParent.previousSibling) {
                     let addedNode = getJSON(topParent)
                     let nodeIndex = getIndexFromDoc(topParent.previousSibling, doc) + 1
-                    if(getIndexFromDoc(topParent, doc) === -1)
+                    if(getIndexFromDoc(topParent, doc) === -1 && addedNode.id && addedNode.id !== "sel-mce_0")
                     doc.body.insertAt(nodeIndex, addedNode)
                 } else {
                     doc.body.push(addedNode)
