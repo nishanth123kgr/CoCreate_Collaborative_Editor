@@ -8,11 +8,13 @@ export function findTopParent(node) {
 }
 
 export function getIndexFromDoc(node, doc) {
-    try {
-        return doc.body.indexOf(doc.body.find((element) => element.id === node.id))
-    } catch (error) {
-        return -1
-    }
+    doc.forEach((element, i) => {
+            if (element.id === node.id) {
+                console.log(element, i);
+                return i;
+            } 
+    });
+    return -1
 }
 
 export function getJSON(node) {
