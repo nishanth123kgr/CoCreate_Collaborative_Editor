@@ -1,6 +1,6 @@
 import { initializeEditor, editor, tiny} from './initializeEditor'
 import { observeDOM, disconnectDOM } from './observeDOM'
-import * as Automerge from '@automerge/automerge';
+import * as Y from 'yjs';
 
 
 initializeEditor() // tinymce.init()
