@@ -10,6 +10,8 @@ const { log } = require('console');
 app.use(express.static(__dirname + '/public'));
 app.set('view engine', 'ejs');
 
+
+// Routes
 app.get('/', (req, res) => {
     res.render('index');
 });
@@ -22,7 +24,21 @@ app.get('/automerge', (req, res) => {
     res.send(Automerge);
 });
 
+// Socket.io
+io.on('connection', (socket) => {
+    console.log('a user connected', socket.id);
+    io.on('disconnect', () => {
+        console.log('user disconnected');
+    }
+    );
+    socket.on('doc-updated', (msg) => {
+        console.log(msg);
+        socket.broadcast.emit('update-doc', msg.change);
+    });
+});
 
+
+// Server
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
