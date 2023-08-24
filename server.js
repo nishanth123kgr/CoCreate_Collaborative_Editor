@@ -4,7 +4,7 @@ const port = 3000;
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-const { log } = require('console');
+const { v4: uuidv4 } = require('uuid');
 
 
 app.use(express.static(__dirname + '/public'));
@@ -17,6 +17,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/editor', (req, res) => {  
+    let uid = uuidv4();
+    res.redirect(`/editor/${uid}`);
+});
+
+app.get('/editor/:id', (req, res) => {
     res.render('editor');
 });
 
@@ -33,7 +38,7 @@ io.on('connection', (socket) => {
     );
     socket.on('doc-updated', (msg) => {
         console.log(msg);
-        socket.broadcast.emit('update-doc', msg.change);
+        socket.broadcast.emit('update-doc', msg);
     });
 });
 
