@@ -8,13 +8,10 @@ export function findTopParent(node) {
 }
 
 export function getIndexFromDoc(node, doc) {
-    doc.forEach((element, i) => {
-            if (element.id === node.id) {
-                console.log(element, i);
-                return i;
-            } 
-    });
-    return -1
+    let docArray = doc.toJSON()
+    return docArray.findIndex((element) => {
+        return element.id === node.id
+    })
 }
 
 export function getJSON(node) {
