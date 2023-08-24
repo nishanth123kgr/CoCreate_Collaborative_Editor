@@ -2,16 +2,33 @@ import { findTopParent, getIndexFromDoc, getJSON } from "./utils";
 import * as Y from "yjs";
 import { editor } from "./initializeEditor";
 import { generateIDS } from "./generateIDS";
+<<<<<<< HEAD
 import { socketSend, socket } from "./socketHandlers";
+=======
+import { socketSend, socketReceive } from "./socketHandlers";
+>>>>>>> c23b3bfeeb5d28ea4e80ccf938ed8e81b38b0148
 
 let document = new Y.Doc();
 let doc = document.getArray('body');
 
+<<<<<<< HEAD
 let doc2 = new Y.Doc();
 let doc3 = doc2.getArray('body');
 
 function logUpdate() {
     console.log(doc.toJSON());
+=======
+function logUpdate(document) {
+    console.log(document.toJSON());
+}
+
+socketReceive();
+
+export function updateDoc(newdoc) {
+    doc.clear();
+    doc.push(newdoc);
+    socketSend(doc.toJSON());
+>>>>>>> c23b3bfeeb5d28ea4e80ccf938ed8e81b38b0148
 }
 
 
