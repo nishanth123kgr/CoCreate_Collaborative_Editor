@@ -9,7 +9,7 @@ export function findTopParent(node) {
 
 export function getIndexFromDoc(node, doc) {
     try {
-        return doc.body.indexOf(doc.body.find((element) => element.id === node.id))
+        return doc.body.findIndex((element) => element.id === node.id)
     } catch (error) {
         return -1
     }

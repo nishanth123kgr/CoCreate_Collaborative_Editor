@@ -5,6 +5,7 @@ const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 const { log } = require('console');
+const {v4: uuidv4} = require('uuid');
 
 
 app.use(express.static(__dirname + '/public'));
@@ -16,13 +17,21 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.get('/editor', (req, res) => {  
-    res.render('editor');
-});
-
 app.get('/automerge', (req, res) => {
     res.send(Automerge);
 });
+
+app.get('/editor', (req, res) => {
+    let id = uuidv4();
+    log(id);
+    res.redirect(`/editor/${id}`);
+}
+);
+
+app.get('/editor/:id', (req, res) => {
+    res.render('editor')
+}
+);
 
 // Socket.io
 io.on('connection', (socket) => {
