@@ -3,14 +3,42 @@ import * as Automerge from "@automerge/automerge"
 import { editor } from "./initializeEditor"
 import { generateIDS } from "./generateIDS"
 import { socketSend, socketReceive } from "./socketHandlers"
+import { firebaseConfig } from "./fbConfig"
+import { initializeApp } from "firebase/app"
+import { getDatabase, ref, child, get, set } from "firebase/database";
 
 let doc = Automerge.init()
+let docId = window.location.href.split('/').pop();
+console.log(docId);
+const app = initializeApp(firebaseConfig);
+const dbRef = ref(getDatabase());
+export function loadDoc() {
+    get(child(dbRef, `documents/${docId}`)).then((snapshot) => {
+        if (!snapshot.exists()) {
+            console.log("Document being Created");
+            set(child(dbRef, `documents/${docId}`), {
+                doc: Automerge.save(Automerge.init())
+            });
+            
+        } else {
+            let newdoc = Automerge.load(snapshot.val().doc);
+            console.log("Document Loaded");
+            updateDoc(newdoc)
+        }
+    }).catch((error) => {
+        console.error(error);
+    });
+}
+
+
+
 
 socketReceive()
 
 export function updateDoc(newdoc) {
     doc = newdoc
-    console.log(doc.body);
+    console.log(doc);
+    console.log(Automerge.getActorId(doc));
     // socketSend(doc)    
 }
 

@@ -19,6 +19,7 @@ let observer = new MutationObserver(function (mutations) {
         }
         else if (mutation.type === 'attributes') {
             // console.log('The ' + mutation.attributeName + ' attribute was modified.');
+            updateHandler(mutation.target.parentNode);
         }
         else if (mutation.type === 'characterData') {
             updateHandler(mutation.target.parentNode);
