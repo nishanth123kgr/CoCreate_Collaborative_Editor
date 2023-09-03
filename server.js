@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
     );
     socket.on('doc-updated', (msg) => {
         console.log(msg);
-        socket.broadcast.emit('update-doc', msg.change);
+        socket.broadcast.emit('update-doc', msg);
     });
 });
 

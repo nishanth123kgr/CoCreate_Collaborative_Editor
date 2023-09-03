@@ -1,15 +1,23 @@
 import { initializeEditor, editor, tiny} from './initializeEditor'
-import { observeDOM, disconnectDOM } from './observeDOM'
-import * as Automerge from '@automerge/automerge';
-import { loadDoc } from './domHandler';
+import * as Automerge from '@automerge/automerge'
 
 
-initializeEditor() // tinymce.init()
-
+initializeEditor()
+const socket = io()
 
 editor.on('init', () => {
-    loadDoc() // Load document from firebase
-    observeDOM() // Observer for tinymce changes
-    editor.setContent('<p id="2f4dfd4ds">Start typing here...</p>') // Set initial content
+    editor.setContent("<p id='e23frw23'>Start typing here...</p>")
+})
+ 
+
+editor.on('change', () => {
+    socket.emit('doc-updated', editor.getContent())
 })
 
+editor.on('input', () => {
+    socket.emit('doc-updated', editor.getContent())
+})
+
+socket.on('update-doc', (msg) => {
+    editor.setContent(msg)
+})
