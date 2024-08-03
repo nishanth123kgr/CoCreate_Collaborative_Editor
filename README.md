@@ -2,12 +2,6 @@
 
 **Unleash the power of teamwork with real-time document editing.**
 
-## Table of Contents
-
-- About: #about
-- Features: #features
-- Technologies: #technologies
-
 ## About
 
 CoCreate is a real-time collaborative word editor that empowers teams to create and edit documents together, seamlessly and efficiently. Built with Node.js, Express.js, and Socket.io, it offers a smooth and intuitive experience for real-time collaboration.
