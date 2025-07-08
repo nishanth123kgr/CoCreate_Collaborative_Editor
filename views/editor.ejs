@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Editor</title>
-    <link rel="stylesheet" href="/css/editorStyle.css" />
-  </head>
-  <body>
-    <div id="editor"></div>
-    <script src="/tinymce/tinymce.min.js"></script>
-    <script src="/libs/domjson/dist/domJSON.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor</title>
+  <link rel="stylesheet" href="/css/editorStyle.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+</head>
+
+<body class="w-screen">
+  <div id="editor"></div>
+  <div id="dom-json" class="flex w-full h-1/2">
+    <div id="json" class="w-1/2 h-full p-10 json">Hello</div>
+    <div id="html" class="w-1/2 h-full p-10 bg-blue-100 html">World</div>
+  </div>
+  <script src="/tinymce/tinymce.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.1/firebase-auth.js"></script> -->
-    <script src="/dist/bundle.js"></script>
-  </body>
+  <script src="/dist/bundle.js"></script>
+</body>
+
 </html>
