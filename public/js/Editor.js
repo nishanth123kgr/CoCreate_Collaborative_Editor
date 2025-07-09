@@ -1,5 +1,8 @@
 import { htmlToJSON, jsonToHTML } from "./utils";
-import { compare, applyPatch } from "fast-json-patch";
+import { apply } from "ot-json0/lib/json0";
+
+
+import optimizedDiff from "json0-ot-diff";
 
 
 class Editor {
@@ -95,26 +98,18 @@ class Editor {
     return JSON.stringify(this.getJSON(), null, 4);
   }
 
-  // getCleanJSON()
-  // {
-  //   return this.normalizeJSON(this.getJSON());
-  // }
-
-  // normalizeJSON(json) {
-  //   return JSON.parse(JSON.stringify(json));
-  // }
-
   getPatch()
   {
     let currentJSON = this.getJSON();
 
+    console.log("Diff", optimizedDiff(this.prevJSON, currentJSON));
 
-    return compare(this.prevJSON, currentJSON);
+    return optimizedDiff(this.prevJSON, currentJSON);
   }
 
   applyPatch(patch) {
     const currentJSON = this.getJSON();
-    const {newDocument} = applyPatch(currentJSON, patch);
+    const newDocument = apply(currentJSON, patch);
 
 
     this.setContent(jsonToHTML(newDocument));

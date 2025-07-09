@@ -16,6 +16,7 @@ await editor.initializeEditor();
 const patchContainer = document.getElementById("patch");
 
 const applyPatchBtn = patchContainer.querySelector('#apply-patch-btn');
+
 applyPatchBtn.addEventListener('click', () => {
     const patchTextArea = patchContainer.querySelector('#patch-area');
     const patch = JSON.parse(patchTextArea.value);
