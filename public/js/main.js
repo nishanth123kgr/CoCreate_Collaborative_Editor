@@ -1,68 +1,49 @@
-import render from 'dom-serializer';
 import Editor from './Editor'
 import { parse } from 'flatted';
+import { jsonToHTML } from './utils';
 
 
 const socket = io();
 
 
-const docJSON = `[{
-    "parent": null,
-    "prev": null,
-    "next": null,
-    "startIndex": null,
-    "endIndex": null,
-    "children": "1",
-    "type": "2"
-},[
-    "3"
-],"root",{
-    "parent": "0",
-    "prev": null,
-    "next": null,
-    "startIndex": null,
-    "endIndex": null,
-    "children": "4",
-    "name": "5",
-    "attribs": "6",
-    "type": "7"
-},[
-    "8"
-],"p",{},"tag",{
-    "parent": "3",
-    "prev": null,
-    "next": null,
-    "startIndex": null,
-    "endIndex": null,
-    "data": "9",
-    "type": "10"
-},"ssdsdf","text"]`;
+const docJSON = `{ "type": "root", "children": [ { "type": "element", "tagName": "p", "properties": {}, "children": [ { "type": "text", "value": "fvbcvbc", "position": { "start": { "line": 1, "column": 4, "offset": 3 }, "end": { "line": 1, "column": 11, "offset": 10 } } } ], "position": { "start": { "line": 1, "column": 1, "offset": 0 }, "end": { "line": 1, "column": 15, "offset": 14 } } } ], "data": { "quirksMode": false }, "position": { "start": { "line": 1, "column": 1, "offset": 0 }, "end": { "line": 1, "column": 15, "offset": 14 } } }`;
 
 
-const editor = new Editor(parse(docJSON));
+const editor = new Editor(JSON.parse(docJSON));
 
 await editor.initializeEditor();
 
+const patchContainer = document.getElementById("patch");
 
+const applyPatchBtn = patchContainer.querySelector('#apply-patch-btn');
+applyPatchBtn.addEventListener('click', () => {
+    const patchTextArea = patchContainer.querySelector('#patch-area');
+    const patch = JSON.parse(patchTextArea.value);
+    console.log("Applying Patch:", patch);
+    editor.applyPatch(patch);
+});
 
-editor.on('change', () => {
+function docUpdateHandler(editor) {
     const domJSONContainer = document.getElementById('dom-json');
 
     console.log(editor.getJSONString());
 
     domJSONContainer.getElementsByClassName('json')[0].innerHTML = editor.getJSONString();
-    domJSONContainer.getElementsByClassName('html')[0].innerHTML = render(editor.getJSON());
+    domJSONContainer.getElementsByClassName('html')[0].innerHTML = jsonToHTML(editor.getJSON());
 
-});
+    let patch = editor.getPatch();
 
-editor.on('input', () => {
-    const domJSONContainer = document.getElementById('dom-json');
+    console.log("Patch:", JSON.stringify(patch, null, 4));
 
-    // console.log(editor.getJSONString());
+    document.querySelector('#json-patch').innerHTML = JSON.stringify(patch, null, 4);
+    document.querySelector('#patch-area').value = JSON.stringify(patch, null, 4);
 
-    domJSONContainer.getElementsByClassName('json')[0].innerHTML = editor.getJSONString();
-    domJSONContainer.getElementsByClassName('html')[0].innerHTML = render(editor.getJSON());
-});
+    editor.prevJSON = editor.getJSON();
+}
+
+editor.on('change', () => docUpdateHandler(editor));
+
+editor.on('input', () => docUpdateHandler(editor));
 
 socket.on('update-doc', (msg) => {
     editor.setContent(msg);

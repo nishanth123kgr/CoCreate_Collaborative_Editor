@@ -1,6 +1,5 @@
-import { parseDocument } from "htmlparser2";
-import render from "dom-serializer";
-import { parse, stringify } from "flatted";
+import { htmlToJSON, jsonToHTML } from "./utils";
+import { compare, applyPatch } from "fast-json-patch";
 
 
 class Editor {
@@ -14,8 +13,8 @@ class Editor {
 
     console.log("Initializing TinyMCE Editor...");
     console.log("Previous JSON Document:", this.prevJSON);
-    
-    
+
+
     this.tiny = await tinymce.init({
       height: "100vh",
       selector: "div#editor",
@@ -32,9 +31,11 @@ class Editor {
       statusbar: false,
       setup: (editorSpace) => {
         this.editor = editorSpace;
-        editorSpace.on('init', () => {
-          editorSpace.setContent(render(this.prevJSON));
-        });
+        if (Object.keys(this.prevJSON).length > 0) {
+          editorSpace.on('init', () => {
+            editorSpace.setContent(jsonToHTML(this.prevJSON));
+          });
+        }
       },
       content_style: `
                 body {
@@ -85,16 +86,39 @@ class Editor {
 
   getJSON() {
     const content = this.getContent();
-    return parseDocument(content);
+    console.log("Content from TinyMCE Editor:", content);
+
+    return htmlToJSON(content);
   }
 
   getJSONString() {
-    return stringify(this.getJSON(), null, 4);
+    return JSON.stringify(this.getJSON(), null, 4);
   }
 
-  getHTML() {
-    const content = this.getContent();
-    return content;
+  // getCleanJSON()
+  // {
+  //   return this.normalizeJSON(this.getJSON());
+  // }
+
+  // normalizeJSON(json) {
+  //   return JSON.parse(JSON.stringify(json));
+  // }
+
+  getPatch()
+  {
+    let currentJSON = this.getJSON();
+
+
+    return compare(this.prevJSON, currentJSON);
+  }
+
+  applyPatch(patch) {
+    const currentJSON = this.getJSON();
+    const {newDocument} = applyPatch(currentJSON, patch);
+
+
+    this.setContent(jsonToHTML(newDocument));
+    this.prevJSON = newDocument;
   }
 
 
