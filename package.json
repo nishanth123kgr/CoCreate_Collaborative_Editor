@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@teamwork/websocket-json-stream": "^2.0.0",
     "dom-serializer": "^2.0.0",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
@@ -22,12 +23,20 @@
     "json0-ot-diff": "^1.1.2",
     "localforage": "^1.10.0",
     "ot-json0": "^1.1.0",
+    "reconnecting-websocket": "^4.4.0",
     "rehype-parse": "^9.0.1",
-    "socket.io": "^4.7.2",
+    "sharedb": "^5.2.2",
+    "socket.io": "^4.8.1",
     "unified": "^11.0.5",
     "uuid": "^11.1.0",
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "util": "^0.12.5"
   }
 }

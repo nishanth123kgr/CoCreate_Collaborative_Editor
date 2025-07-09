@@ -1,11 +1,25 @@
 const express = require('express');
+const http = require('http');
+const {v4: uuidv4} = require('uuid');
+const { Server } = require('socket.io'); 
+const ShareDB = require('sharedb');
+const json0   = require('ot-json0');
+const { Duplex } = require('stream');
+
+const WebSocket = require('ws');
+const WebSocketJSONStream = require('@teamwork/websocket-json-stream');
+
+
+
+
 const app = express();
 const port = 3000;
-const http = require('http');
+
 const server = http.createServer(app);
-const io = require('socket.io')(server);
-const { log } = require('console');
-const {v4: uuidv4} = require('uuid');
+// const io = new Server(server);
+
+ShareDB.types.register(json0.type);
+const backend = new ShareDB();
 
 
 app.use(express.static(__dirname + '/public'));
@@ -22,8 +36,7 @@ app.get('/automerge', (req, res) => {
 });
 
 app.get('/editor', (req, res) => {
-    let id = uuidv4();
-    log(id);
+    let id = uuidv4();;
     res.redirect(`/editor/${id}`);
 }
 );
@@ -33,18 +46,64 @@ app.get('/editor/:id', (req, res) => {
 }
 );
 
-// Socket.io
-io.on('connection', (socket) => {
-    console.log('a user connected', socket.id);
-    io.on('disconnect', () => {
-        console.log('user disconnected');
-    }
-    );
-    socket.on('doc-updated', (msg) => {
-        console.log(msg);
-        socket.broadcast.emit('update-doc', msg);
+
+// Convert socket.io to ShareDB-compatible stream
+function createSocketStream(socket) {
+    const stream = new Duplex({ objectMode: true });
+
+    stream._write = (chunk, encoding, callback) => {
+        socket.emit('ot-message', chunk);
+        callback();
+    };
+
+    stream._read = () => {};
+
+    socket.on('ot-message', (msg) => {
+        stream.push(msg);
     });
+
+    socket.on('disconnect', () => {
+        stream.push(null);
+        stream.emit('close');
+        console.log(`Socket disconnected: ${socket.id}`);
+    });
+
+    return stream;
+}
+
+// Socket.io
+// io.on('connection', (socket) => {
+//   console.log('Client connected:', socket.id);
+
+//   const stream = new Duplex({ objectMode: true });
+//   stream._write = (chunk, _, cb) => {
+//     console.log('[Server] Sending chunk to client:', chunk);
+//     socket.emit('ot-message', chunk);
+//     cb();
+//   };
+
+//   stream._read = () => {};
+
+//   socket.on('ot-message', (msg) => {
+//     console.log('[Server] Received message from client:', msg);
+//     stream.push(msg);
+//   });
+
+//   socket.on('disconnect', () => {
+//     console.log(`Socket disconnected: ${socket.id}`);
+//     stream.push(null);
+//     stream.emit('close');
+//   });
+
+//   backend.listen(stream);
+// });
+
+const wss = new WebSocket.Server({ server });
+wss.on('connection', (ws) => {
+  const stream = new WebSocketJSONStream(ws);
+  backend.listen(stream);
 });
+
 
 
 // Server

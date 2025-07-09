@@ -1,4 +1,4 @@
-import { htmlToJSON, jsonToHTML } from "./utils";
+import { htmlToJSON, jsonToHTML, isValidDOMTree, isSafePatch } from "./utils";
 import { apply } from "ot-json0/lib/json0";
 
 
@@ -10,6 +10,7 @@ class Editor {
     this.editor = null;
     this.tiny = null;
     this.prevJSON = docJSON;
+    this.suppressChange = false;
   }
 
   async initializeEditor() {
@@ -32,12 +33,16 @@ class Editor {
         " align | outdent indent | bullist numlist |" +
         " codesample searchreplace blockquote lineheight",
       statusbar: false,
-      setup: (editorSpace) => {
-        this.editor = editorSpace;
+      setup: (editor) => {
+        this.editor = editor;
         if (Object.keys(this.prevJSON).length > 0) {
-          editorSpace.on('init', () => {
-            editorSpace.setContent(jsonToHTML(this.prevJSON));
+          this.editor.on('init', () => {
+            this.editor.setContent(jsonToHTML(this.prevJSON));
           });
+        }
+
+        if (!this.suppressChange) {
+          this.editor.fire('user-change');
         }
       },
       content_style: `
@@ -68,7 +73,7 @@ class Editor {
   }
 
   on(event, callback) {
-    this.editor.on(event, callback);
+    this.editor.on(event === 'change' ? 'user-change' : event, callback);
   }
 
   getContent() {
@@ -98,22 +103,45 @@ class Editor {
     return JSON.stringify(this.getJSON(), null, 4);
   }
 
-  getPatch()
-  {
+  getPatch() {
     let currentJSON = this.getJSON();
 
-    console.log("Diff", optimizedDiff(this.prevJSON, currentJSON));
+    let patch = optimizedDiff(this.prevJSON, currentJSON);
 
-    return optimizedDiff(this.prevJSON, currentJSON);
+    this.prevJSON = currentJSON;
+
+    return patch;
   }
 
   applyPatch(patch) {
+    this.suppressChange = true;
     const currentJSON = this.getJSON();
+
+    console.log(typeof(this.tiny));
+
+    //  const selection = this.tiny.selection.getBookmark(2, true);
+
+    if( !isSafePatch(currentJSON, patch) ) {
+      console.error("Invalid DOM tree detected, patch application aborted.");
+      return;
+    }
+
     const newDocument = apply(currentJSON, patch);
 
+    console.log(newDocument);
+
+
+    
+
+    // const selection = this.editor.selection.getRng();
 
     this.setContent(jsonToHTML(newDocument));
+
+    // Restore selection
+    // this.tiny.selection.moveToBookmark(selection);
     this.prevJSON = newDocument;
+
+    this.suppressChange = false;
   }
 
 
