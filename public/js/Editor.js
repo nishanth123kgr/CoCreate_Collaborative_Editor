@@ -123,14 +123,15 @@ class Editor {
     this.suppressChange = true;
     const currentJSON = this.getJSON();
 
-    // logger(typeof(this.tiny));
+    let bookmark = null;
 
-    //  const selection = this.tiny.selection.getBookmark(2, true);
+    if(this.editor.selection)
+    {
+      bookmark = this.editor.selection.getBookmark(2);
+    }
 
-    // if( !isSafePatch(currentJSON, patch) ) {
-    //   console.error("Invalid DOM tree detected, patch application aborted.");
-    //   return;
-    // }
+    // console.log(bookmark);
+    
     logger("----------------------------------------------------------------");
     logger("Starting patch application...");
     logger("Raw patch:", patch);
@@ -151,6 +152,17 @@ class Editor {
 
     logger("Complete patch application.");
     logger("----------------------------------------------------------------");
+
+    // this.tiny.activeEditor.selection.moveToBookmark(bookmark);
+
+    // this.editor.focus();
+
+    if( bookmark && this.editor.selection) {
+      this.editor.selection.moveToBookmark(bookmark);
+      this.editor.selection.scrollIntoView();
+      // this.editor.selection.normalize();
+      this.editor.focus();
+    }
 
 
     // Restore selection

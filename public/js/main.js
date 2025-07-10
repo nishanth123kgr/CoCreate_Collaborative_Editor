@@ -4,16 +4,15 @@ import ReconnectingWebSocket from 'reconnecting-websocket';
 import Editor from './Editor';
 import sharedb from 'sharedb/lib/client';
 import json0 from 'ot-json0';
-import { Duplex } from 'stream';
 
-import { expandDeletions, safeApplyPatch, isWellFormedJson, logger } from './utils';
-import optimizedDiff from "json0-ot-diff";
 
 
 sharedb.types.register(json0.type);
 
+let protocol = document.location.protocol === 'https:' ? 'wss' : 'ws';
+
 // Connect to server via Socket.IO
-const socket = new ReconnectingWebSocket(`ws://${location.host}`);
+const socket = new ReconnectingWebSocket(`${protocol}://${location.host}`);
 const connection = new sharedb.Connection(socket);
 
 const docId = location.pathname.split('/')[2];
@@ -76,10 +75,16 @@ doc.subscribe(async (err) => {
         };
     }
 
-    const debouncedDocUpdateHandler = debounce(docUpdateHandler, 10);
-
+    const debouncedDocUpdateHandler = debounce(docUpdateHandler, 10);    
+    
     ['change', 'input', 'undo', 'redo', 'ExecCommand', 'NodeChange'].forEach(evt => {
         editor.on(evt, () => {
+            // Check if editor is properly initialized before accessing selection
+            // if (editor.getEditor() && editor.getEditor().selection) {
+            //     console.log(editor.getEditor().selection.getBookmark(2));
+            //     console.log("Empty", editor.getEditor().selection.getBookmark());
+            // }
+
             debouncedDocUpdateHandler();
         });
     });
