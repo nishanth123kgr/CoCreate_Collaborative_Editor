@@ -58,7 +58,11 @@ doc.subscribe(async (err) => {
             logger('[Client] No changes detected, skipping patch submission.');
             return;
         }
-        doc.submitOp(patch);
+        doc.submitOp(patch, { source: 'true' }, (err) => {
+            if (err) {
+                console.error('[Client] Error submitting patch:', err);
+            } 
+        });
     }
 
 
@@ -72,7 +76,7 @@ doc.subscribe(async (err) => {
         };
     }
 
-    const debouncedDocUpdateHandler = debounce(docUpdateHandler, 100);
+    const debouncedDocUpdateHandler = debounce(docUpdateHandler, 10);
 
     ['change', 'input', 'undo', 'redo', 'ExecCommand', 'NodeChange'].forEach(evt => {
         editor.on(evt, () => {
@@ -82,12 +86,11 @@ doc.subscribe(async (err) => {
 
 
     // Apply remote changes from other users
-    doc.on('op', (op, source) => {
+    doc.on('op batch', (ops, source) => {
 
 
         if (!source) {
-            logger(`[Client] Applying remote patch :`, op);
-            editor.applyPatch(op);
+            editor.applyPatch(ops);
         }
     });
 });

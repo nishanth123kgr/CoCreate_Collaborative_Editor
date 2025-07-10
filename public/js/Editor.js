@@ -131,7 +131,8 @@ class Editor {
     //   console.error("Invalid DOM tree detected, patch application aborted.");
     //   return;
     // }
-
+    logger("----------------------------------------------------------------");
+    logger("Starting patch application...");
     logger("Raw patch:", patch);
 
     patch = normalize(patch);
@@ -142,10 +143,15 @@ class Editor {
     const newDocument = apply(currentJSON, patch);
 
     logger("After applying patch:", newDocument);
+    logger("After applying patch as HTML:", jsonToHTML(newDocument));
 
     // const selection = this.editor.selection.getRng();
 
     this.setContent(jsonToHTML(newDocument));
+
+    logger("Complete patch application.");
+    logger("----------------------------------------------------------------");
+
 
     // Restore selection
     // this.tiny.selection.moveToBookmark(selection);
