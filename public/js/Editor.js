@@ -1,5 +1,6 @@
-import { htmlToJSON, jsonToHTML, isValidDOMTree, isSafePatch } from "./utils";
-import { apply } from "ot-json0/lib/json0";
+import { htmlToJSON, jsonToHTML, isValidDOMTree, isSafePatch, expandDeletions, logger, flattenPatches } from "./utils";
+import { apply, normalize } from "ot-json0/lib/json0";
+
 
 
 import optimizedDiff from "json0-ot-diff";
@@ -15,8 +16,8 @@ class Editor {
 
   async initializeEditor() {
 
-    console.log("Initializing TinyMCE Editor...");
-    console.log("Previous JSON Document:", this.prevJSON);
+    logger("Initializing TinyMCE Editor...");
+    logger("Previous JSON Document:", this.prevJSON);
 
 
     this.tiny = await tinymce.init({
@@ -94,13 +95,19 @@ class Editor {
 
   getJSON() {
     const content = this.getContent();
-    console.log("Content from TinyMCE Editor:", content);
+    logger("Content from TinyMCE Editor:", content);
 
-    return htmlToJSON(content);
+
+
+    return normalize(htmlToJSON(content));
   }
 
   getJSONString() {
     return JSON.stringify(this.getJSON(), null, 4);
+  }
+
+  getPrevJSON() {
+    return this.prevJSON || {};
   }
 
   getPatch() {
@@ -109,29 +116,32 @@ class Editor {
     let patch = optimizedDiff(this.prevJSON, currentJSON);
 
     this.prevJSON = currentJSON;
-
-    return patch;
+    return normalize(patch);
   }
 
   applyPatch(patch) {
     this.suppressChange = true;
     const currentJSON = this.getJSON();
 
-    console.log(typeof(this.tiny));
+    // logger(typeof(this.tiny));
 
     //  const selection = this.tiny.selection.getBookmark(2, true);
 
-    if( !isSafePatch(currentJSON, patch) ) {
-      console.error("Invalid DOM tree detected, patch application aborted.");
-      return;
-    }
+    // if( !isSafePatch(currentJSON, patch) ) {
+    //   console.error("Invalid DOM tree detected, patch application aborted.");
+    //   return;
+    // }
+
+    logger("Raw patch:", patch);
+
+    patch = normalize(patch);
+
+    logger("Normalized patch:", patch);
+
 
     const newDocument = apply(currentJSON, patch);
 
-    console.log(newDocument);
-
-
-    
+    logger("After applying patch:", newDocument);
 
     // const selection = this.editor.selection.getRng();
 
@@ -145,6 +155,13 @@ class Editor {
   }
 
 
+  fire(event, ...args) {
+    if (this.editor) {
+      this.editor.fire(event, ...args);
+    } else {
+      console.warn("Editor not initialized, cannot fire event:", event);
+    }
+  }
 
 
 
