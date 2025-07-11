@@ -5,6 +5,8 @@ import Editor from './Editor';
 import sharedb from 'sharedb/lib/client';
 import json0 from 'ot-json0';
 
+import { logger } from './utils';
+
 
 
 sharedb.types.register(json0.type);
