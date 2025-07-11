@@ -1,4 +1,4 @@
-import { htmlToJSON, jsonToHTML, isValidDOMTree, isSafePatch, expandDeletions, logger, flattenPatches } from "./utils";
+import { htmlToJSON, jsonToHTML, isValidDOMTree, isSafePatch, expandDeletions, logger, flattenPatches, hybridDiff } from "./utils";
 import { apply, normalize } from "ot-json0/lib/json0";
 
 
@@ -113,7 +113,10 @@ class Editor {
   getPatch() {
     let currentJSON = this.getJSON();
 
-    let patch = optimizedDiff(this.prevJSON, currentJSON);
+    let patch = hybridDiff(this.prevJSON, currentJSON);
+
+    console.log("Patch before validation:", patch);
+    
 
     this.prevJSON = currentJSON;
     return normalize(patch);
