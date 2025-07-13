@@ -20,6 +20,7 @@ export function jsonToHTML(json) {
 
 
 export function logger(...messages) {
+  return;
   console.log(`[Logger] [${new Date().toISOString()}]`, ...messages);
 }
 
