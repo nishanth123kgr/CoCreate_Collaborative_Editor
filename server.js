@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // const io = new Server(server);
 
 ShareDB.types.register(json0.type);
-const backend = new ShareDB();
+const backend = new ShareDB({presence: true, doNotForwardSendPresenceErrorsToClient: true});
 
 
 app.use(express.static(__dirname + '/public'));

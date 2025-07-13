@@ -4,6 +4,7 @@ import { apply, normalize } from "ot-json0/lib/json0";
 
 
 import optimizedDiff from "json0-ot-diff";
+import { v4 } from "uuid";
 
 
 class Editor {
@@ -12,6 +13,8 @@ class Editor {
     this.tiny = null;
     this.prevJSON = docJSON;
     this.suppressChange = false;
+    this.color = "#" + ((1 << 24) * Math.random() | 0).toString(16).padStart(6, "0");
+    this.id = v4().split('-')[0];
   }
 
   async initializeEditor() {
