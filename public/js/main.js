@@ -52,7 +52,11 @@ doc.subscribe(async (err) => {
     logger('[Client] Editor initialized.');
 
 
-    function docUpdateHandler() {
+    function docUpdateHandler(retryCount = 0) {
+        if( retryCount > 5) {
+            console.error('[Client] Max retries reached, aborting patch submission.');
+            return;
+        }
         let patch = editor.getPatch();
         logger(`[Client] Patch`, patch);
         if (!patch || patch.length === 0) {
@@ -62,6 +66,9 @@ doc.subscribe(async (err) => {
         doc.submitOp(patch, { source: 'true' }, (err) => {
             if (err) {
                 console.error('[Client] Error submitting patch:', err);
+                setTimeout(() => {
+                    docUpdateHandler(retryCount + 1);
+                }, 1000); // Retry after 1 second
             } 
         });
     }
@@ -77,7 +84,7 @@ doc.subscribe(async (err) => {
         };
     }
 
-    const debouncedDocUpdateHandler = debounce(docUpdateHandler, 10);    
+    const debouncedDocUpdateHandler = debounce(docUpdateHandler, 200);    
     
     ['change', 'input', 'undo', 'redo', 'ExecCommand', 'NodeChange'].forEach(evt => {
         editor.on(evt, () => {
